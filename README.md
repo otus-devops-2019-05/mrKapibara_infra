@@ -43,18 +43,18 @@ ChatOps:
 ```
 gcloud init
 ```
-Создаём новый проект и переключаемся на него:  
+Создаём новый проект и переключаемся на него:
 ```
 gcloud projects create infra-999999
 gcloud config set project infra-999999
 ```
 Сгенерируем ключи `ssh-keygen -t rsa -f ~/.ssh/gcloud-iowa-key1 -C gcloud-test-usr`,
 Добавим приватный ключ в агент: `ssh-add ~/.ssh/gcloud-iowa-key1`
-приведём публичную часть к виду
+приведём публичную часть к виду:
 ```
 [USERNAME]:ssh-rsa [KEY_VALUE] [USERNAME]
 ```
-и добавим их в gcloud: 
+и добавим их в gcloud:
 
 ```
 gcloud compute project-info add-metadata --metadata-from-file ssh-keys=~/.ssh/gcloud-iowa-key1.pub
@@ -77,7 +77,7 @@ gcloud compute instances add-tags bastion --tags http-server,https-server --zone
 </details>
 
 для удобного подключения 
-добавляем в файл `~/.ssh/config` информацию о серверах: 
+добавляем в файл `~/.ssh/config` информацию о серверах:
 
 ```
 Host bastion
@@ -112,7 +112,7 @@ Lets encrypt для Pritunl:
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
 
 bastion_IP = 34.67.122.138
-someinternalhost_IP = 10.128.0.10  
+someinternalhost_IP = 10.128.0.10
 
 </p>
 </details>
