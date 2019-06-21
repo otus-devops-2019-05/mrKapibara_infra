@@ -34,8 +34,7 @@ ChatOps:
 <details><summary> Lab03. Знакомство с облачной инфраструктурой и облачными сервисами.</summary>
 <p>
 
-<details><summary>Поиграемся с gcloud</summary>
-<p>
+<details><summary>Поиграемся с gcloud</summary><p>
 
 Устанавливаем по [инструкции]("https://cloud.google.com/sdk/docs")
 
@@ -96,7 +95,7 @@ Host someinternalhost
 
 теперь к someinternalhost можно подключиться командой: `ssh someinternalhost`
 
-VPN:
+### VPN:
 
 [Устанавливаем Pritunl](https://docs.pritunl.com/docs/installation#section-linux-repositories)
 
@@ -107,12 +106,12 @@ gcloud compute firewall-rules create pritunl --allow udp:15526 --target-tags pri
 gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 ```
 
-Lets encrypt для Pritunl:
+### Lets encrypt для Pritunl:
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
 
-bastion_IP = 34.67.122.138  
-someinternalhost_IP = 10.128.0.10  
+    bastion_IP = 34.67.122.138  
+    someinternalhost_IP = 10.128.0.10  
 
 </p>
 </details>
