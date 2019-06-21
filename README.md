@@ -1,4 +1,8 @@
 # mrKapibara_infra
+
+    bastion_IP = 34.67.122.138  
+    someinternalhost_IP = 10.128.0.10  
+
 <details><summary> Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
 <p>
 ChatOps:
@@ -109,9 +113,6 @@ gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 ### Lets encrypt для Pritunl:
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
-
-    bastion_IP = 34.67.122.138  
-    someinternalhost_IP = 10.128.0.10  
 
 </p>
 </details>
