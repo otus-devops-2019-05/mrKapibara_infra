@@ -1,7 +1,7 @@
 # mrKapibara_infra
 
-    testapp_IP = 104.198.71.233  
-    testapp_port = 9292  
+  testapp_IP = 104.198.71.233  
+  testapp_port = 9292  
 
 <details><summary> Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
 <p>
