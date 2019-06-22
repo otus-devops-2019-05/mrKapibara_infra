@@ -1,7 +1,7 @@
 # mrKapibara_infra
 
-    bastion_IP = 34.67.122.138  
-    someinternalhost_IP = 10.128.0.10  
+    testapp_IP = 104.198.71.233  
+    testapp_port = 9292  
 
 <details><summary> Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
 <p>
@@ -113,6 +113,42 @@ gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 ### Lets encrypt для Pritunl:
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
+
+</p>
+</details>
+
+<details><summary> Lab04. Основные сервисы Google Cloud Platform (GCP)</summary>
+<p>
+
+Написаны простейшие скрипты для установки [ruby](install_ruby.sh), [mogodb](install_mongodb.sh), [puma_app](deploy.sh) и объединены в один скрипт [startup-script](startup-script.sh)  
+
+Пример отправки скрипта в GCP хранилище:
+
+```
+gsutil mb gs://gcloud-test-user-bckt/  
+gsutil cp startup-script.sh gs://gcloud-test-user-bckt/
+```
+
+Создаём правило в фаерове:
+
+```
+gcloud compute firewall-rules create puma-port --allow=tcp:9292 --target-tags=puma
+```
+Создаём инстанс cо скриптом автозапуска и открываем порт: 
+
+```
+gcloud compute instances create reddit-app\            
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma \
+  --restart-on-failure \
+  --zone us-central1-c \
+  --metadata startup-script-url=gs://gcloud-test-user-bckt/startup-script.sh
+```
+
+[инструкция gsutil](https://cloud.google.com/storage/docs/quickstart-gsutil)
 
 </p>
 </details>
