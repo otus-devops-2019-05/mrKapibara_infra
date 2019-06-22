@@ -6,8 +6,8 @@ sudo bash -c 'echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.
 sudo apt update &&  \
 sudo apt install -y mongodb-org ruby-full ruby-bundler build-essential
 
-sudo systemctl start mongodb-org && \
-sudo systemctl enable mongodb-org
+sudo systemctl start mongod && \
+sudo systemctl enable mongod
 
 git clone -b monolith https://github.com/express42/reddit.git && \
 cd reddit && bundle install && puma -d
