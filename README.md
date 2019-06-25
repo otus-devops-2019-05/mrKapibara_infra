@@ -3,9 +3,9 @@
   testapp_IP = 104.198.71.233  
   testapp_port = 9292  
 
-<details><summary> Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
-<p>
-ChatOps:
+## Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
+
+### ChatOps:
 
 Для получения уведомлений будем использовать [Slack](https://slack.com/).   
 
@@ -32,13 +32,9 @@ ChatOps:
 
     travis encrypt "<команда>:<токен>#<имя_канала>" --add notifications.slack.rooms --com
 
-</p>
-</details>
+## Lab03. Знакомство с облачной инфраструктурой и облачными сервисами.
 
-<details><summary> Lab03. Знакомство с облачной инфраструктурой и облачными сервисами.</summary>
-<p>
-
-<details><summary>Поиграемся с gcloud</summary><p>
+### Поиграемся с gcloud
 
 Устанавливаем по [инструкции]("https://cloud.google.com/sdk/docs")
 
@@ -76,8 +72,7 @@ gcloud compute instances add-tags bastion --tags http-server,https-server --zone
 ```
 [документация](https://cloud.google.com/sdk/gcloud/reference/)
 
-</p>
-</details>
+### SSH:
 
 для удобного подключения 
 добавляем в файл `~/.ssh/config` информацию о серверах:
@@ -114,11 +109,8 @@ gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
 
-</p>
-</details>
+## Lab04. Основные сервисы Google Cloud Platform (GCP)</summary>
 
-<details><summary> Lab04. Основные сервисы Google Cloud Platform (GCP)</summary>
-<p>
 
 Написаны простейшие скрипты для установки [ruby](install_ruby.sh), [mogodb](install_mongodb.sh), [puma_app](deploy.sh) и объединены в один скрипт [startup-script](startup-script.sh)  
 
@@ -148,7 +140,4 @@ gcloud compute instances create reddit-app\
   --metadata startup-script-url=gs://gcloud-test-user-bckt/startup-script.sh
 ```
 
-[инструкция gsutil](https://cloud.google.com/storage/docs/quickstart-gsutil)
-
-</p>
-</details>
+[Инструкция gsutil](https://cloud.google.com/storage/docs/quickstart-gsutil)
