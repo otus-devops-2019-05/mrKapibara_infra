@@ -3,7 +3,7 @@
     testapp_IP = 104.198.71.233
     testapp_port = 9292
 
-## Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
+## Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.
 
 ### ChatOps:
 
@@ -109,7 +109,7 @@ gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
 
-## Lab04. Основные сервисы Google Cloud Platform (GCP)</summary>
+## Lab04. Основные сервисы Google Cloud Platform (GCP)
 
 
 Написаны простейшие скрипты для установки [ruby](install_ruby.sh), [mogodb](install_mongodb.sh), [puma_app](deploy.sh) и объединены в один скрипт [startup-script](startup-script.sh)  
@@ -129,7 +129,7 @@ gcloud compute firewall-rules create puma-port --allow=tcp:9292 --target-tags=pu
 Создаём инстанс cо скриптом автозапуска и открываем порт: 
 
 ```
-gcloud compute instances create reddit-app\            
+gcloud compute instances create reddit-app \
   --boot-disk-size=10GB \
   --image-family ubuntu-1604-lts \
   --image-project=ubuntu-os-cloud \
@@ -141,3 +141,32 @@ gcloud compute instances create reddit-app\
 ```
 
 [Инструкция gsutil](https://cloud.google.com/storage/docs/quickstart-gsutil)
+
+## Lab05. Модели управления инфраструктурой.
+
+### Packer:
+
+[Устанавливаем Packer](https://www.packer.io/downloads.html).
+
+[Настраиваем GCP](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login) для работы с Packer:
+
+    $ gcloud auth application-default login
+
+Пишем шаблон [ubuntu 16](packer/ubuntu16.json) для создания образа Packer`ом, ключи можно посмотреть в [документации](https://www.packer.io/docs/). Важные переменные выносим в отдельный файл [variables.json.example](packer/variables.json.example).
+
+Проверяем шаблон и собираем образ:
+
+    $ packer validate -var-file=./packer/variables.json ./packer/ubuntu16.json &&
+    packer build -var-file=./packer/variables.json ./packer/ubuntu16.json 
+
+Посмотрим на созданные образы:
+
+    $ gcloud compute images list --filter="family=( 'reddit-base' )"
+    NAME                    PROJECT       FAMILY       DEPRECATED  STATUS
+    reddit-base-1561565774  my-infra      reddit-base              READY
+
+### Immutable infrastructure - Bake:
+
+Теперь из имеющегося образа можно создать "bake" с нашим приложением. Для начала подготовим шаблон нашего сервиса [immutable.json](packer/immutable.json). Напишем [Unit-файл](packer/files/puma.service) для удобного управления сервисом, отредактируем скрипт развёртывания приложения [deploy.sh](packer/files/deploy.sh).
+
+Напишем файл для запуска сервера из имеющегося образа: [create-reddit-vm.sh](config-scripts/create-reddit-vm.sh)
