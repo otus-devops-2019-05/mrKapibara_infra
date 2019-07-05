@@ -1,0 +1,13 @@
+[Unit]
+Description=Starts puma webserver
+Requires=network.target mongod.service
+
+[Service]
+Type=single
+User=appuser
+WorkingDirectory=/opt/reddit
+ExecStart=/usr/local/bin/puma
+
+
+[Install]
+WantedBy=multi-user.target
