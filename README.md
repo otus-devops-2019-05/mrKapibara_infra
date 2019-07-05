@@ -1,9 +1,13 @@
 # mrKapibara_infra
 
-    testapp_IP = 104.198.71.233
-    testapp_port = 9292
+<details><summary>01. Система контроля версий как основа разработки и поставки ПО. Знакомство с Git.</summary>
+<p>
+Ознакомительное задание про git [про гит](https://try.github.io/)
+</p>
+</details>
 
-## Lab02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.
+<details><summary>02. Локальное окружение инженера. ChatOps и визуализация рабочих процессов. Командная работа с Git. Работа в GitHub.</summary>
+<p>
 
 ### ChatOps:
 
@@ -32,8 +36,11 @@
 
     travis encrypt "<команда>:<токен>#<имя_канала>" --add notifications.slack.rooms --com
 
-## Lab03. Знакомство с облачной инфраструктурой и облачными сервисами.
+</p>
+</details>
 
+<details><summary>03. Знакомство с облачной инфраструктурой и облачными сервисами.</summary>
+<p>
 ### Поиграемся с gcloud
 
 Устанавливаем по [инструкции]("https://cloud.google.com/sdk/docs")
@@ -109,7 +116,11 @@ gcloud compute instance add-tags bastion --zone us-central1-c --tags pritunl
 
 В настройках Pritunl в поле `Lets Encrypt Domain` вводим: `34.66.166.158.sslip.io`, сохраняем настройки и обращаемся по адресу `https://34.66.166.158.sslip.io`. Теперь панелька секьюрна.
 
-## Lab04. Основные сервисы Google Cloud Platform (GCP)
+</p>
+</details>
+
+<details><summary>04. Основные сервисы Google Cloud Platform (GCP)</summary>
+<p>
 
 
 Написаны простейшие скрипты для установки [ruby](install_ruby.sh), [mogodb](install_mongodb.sh), [puma_app](deploy.sh) и объединены в один скрипт [startup-script](startup-script.sh)  
@@ -142,7 +153,11 @@ gcloud compute instances create reddit-app \
 
 [Инструкция gsutil](https://cloud.google.com/storage/docs/quickstart-gsutil)
 
-## Lab05. Модели управления инфраструктурой.
+</p>
+</details>
+
+<details><summary>05. Модели управления инфраструктурой.</summary>
+<p>
 
 ### Packer:
 
@@ -170,3 +185,98 @@ gcloud compute instances create reddit-app \
 Теперь из имеющегося образа можно создать "bake" с нашим приложением. Для начала подготовим шаблон нашего сервиса [immutable.json](packer/immutable.json). Напишем [Unit-файл](packer/files/puma.service) для удобного управления сервисом, отредактируем скрипт развёртывания приложения [deploy.sh](packer/files/deploy.sh).
 
 Напишем файл для запуска сервера из имеющегося образа: [create-reddit-vm.sh](config-scripts/create-reddit-vm.sh)
+
+</p>
+</details>
+
+<details><summary>06. Практика Infrastructure as a Code (IaC).</summary>
+<p>
+
+### Terraform:
+
+[Устанавливается, копированием одного файлика](https://www.terraform.io/downloads.html)
+
+В проекте рекомендуется использовать имена файлов:
+- main.tf - основной файл
+- [variables.tf](https://www.terraform.io/docs/configuration/variables.html) - файл для переменных
+- [outputs.tf](https://www.terraform.io/docs/configuration/outputs.html) - для вывода информации
+- *.tf - файлы terraform загружающиеся при запуске
+
+После создания файлов, в основной вносим информацию о [провайдере](https://www.terraform.io/docs/configuration/providers.html) и если требуется, версию:
+
+    terraform {
+    required_version = "0.11.11"
+    }
+
+    provider "google" {
+    version = "2.0.0"
+    project = "${var.project}"
+    region  = "${var.region}"
+
+после чего даём комманду терраформу, скачать необходимые для работы файлы: `terraform init`
+
+Можно приступать к чтению [документации для GCP](https://www.terraform.io/docs/providers/google/)
+
+Чувствительные переменные выносим в отдельный файл например имя пользователя и приватную часть ключа:
+
+    connection {
+      type        = "ssh"
+      user        = "${var.ssh_user}"
+      agent       = "false"
+      private_key = "${file(var.private_key_path)}"
+
+### Ключи для подключения:
+
+Рекомендуется хранить ключи для подключения на уровне проекта:
+
+    resource "google_compute_project_metadata" "reddit-app-ssh-keys" {
+      metadata = {
+        ssh-keys = "${var.ssh_user}:${file(var.public_key_path)} ${var.ssh_user}1:${file(var.public_key_path)} ${var.ssh_user}2:${file(var.public_key_path)}"
+      }
+    }
+
+### Балансировщик:
+
+Создадим отдельный файл для описания tcp балансировщика - [lb.tf](terraform/lb.tf)
+
+
+Настроим правила проверки доступности порта "[health-check](https://www.terraform.io/docs/providers/google/r/compute_http_health_check.html)":
+
+
+    resource "google_compute_http_health_check" "reddit-app-health-check" {
+      name               = "reddit-app-health-check"
+      check_interval_sec = 1
+      timeout_sec        = 1
+      port               = "9292"
+    }
+
+
+для удобства объединим все машины, в одну группу [https://www.terraform.io/docs/providers/google/r/compute_target_pool.html](https://cloud.google.com/load-balancing/docs/target-pools):
+
+
+    resource "google_compute_target_pool" "reddit-app-pool" {
+      name = "reddit-app-pool"
+      instances = [
+        "${google_compute_instance.reddit-app-instances.*.self_link}",
+      ]
+      health_checks = [
+        "${google_compute_http_health_check.reddit-app-health-check.self_link}",
+      ]
+      region = "${var.region}"
+    }
+
+
+и настроим правила для маршрутизации пакетов "[forwarding-rules](https://www.terraform.io/docs/providers/google/r/compute_forwarding_rule.html)":
+
+    resource "google_compute_forwarding_rule" "reddit-app-balancer" {
+      name                  = "reddit-app-balancer"
+      region                = "${var.region}"
+      load_balancing_scheme = "EXTERNAL"
+      ip_protocol           = "TCP"
+      port_range            = "9292"
+      network_tier = "STANDARD"
+      target       = "${google_compute_target_pool.reddit-app-pool.self_link}"
+    }
+
+</p>
+</details>
