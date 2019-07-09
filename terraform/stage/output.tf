@@ -3,5 +3,5 @@ output "app-external-ip" {
 }
 
 output "db-external-ip" {
-  value = "${module.app.reddit-db-external-ip}"
+  value = "${module.db.reddit-db-external-ip}"
 }
