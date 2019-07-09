@@ -280,3 +280,116 @@ gcloud compute instances create reddit-app \
 
 </p>
 </details>
+
+<details><summary>07. Принципы организации инфраструктурного кода и работа над инфраструктурой в команде на примере Terraform.</summary>
+<p>
+
+#### Импорт существующих ресурсов.
+Для добавления действующего ресурса в файл terraform.tfstate сначало его необходимо описать в конфигурации, затем выполнить команду [terraform import](https://www.terraform.io/docs/import/).
+
+#### Взаимосвязи ресурсов.
+- неявная: когда ресурc terraform'а ссылается на объект внутри другого ресурса `'nat_ip = "${google_compute_address.reddit-app-ip.address}"'`
+- явная: в описании ресурса присутствует ссылка на другой ресурс  - `"depends_on = [
+      "google_compute_instance.reddit-db",
+  ]"`
+
+#### Работа с модулями:
+
+Модули позволяют разделять ресурсы и облегчают управление ими. Инфраструктура разбита на 3 модуля:
+- [app](terraform/modules/app) - web часть сервиса
+- [db](terraform/modules/db) - модуль для работы с базами данных
+- [vpc](terraform/modules/vpc) - модуль для управления доступом к проекту
+
+После написания модулей их необходимо загрузить командой `terraform get`.
+Настроим отображение выходных переменных из модулей:
+```
+output "app-external-ip" {
+  value = "${module.app.reddit-app-external-ip}"
+}
+```
+Пример вызова локального модуля c передачей в него переменных:
+```
+module "vpc" {
+  source          = "../modules/vpc"
+  ssh_user        = "${var.ssh_user}"
+  public_key_path = "${var.public_key_path}"
+}
+```
+
+#### Работа с реестром модулей
+
+Пример вызова модуля [storage-bucket](https://registry.terraform.io/modules/SweetOps/storage-bucket/google/0.2.0) из [Terraform Module Registry](https://registry.terraform.io/) для создания бакета, где будем хранить .tfstate файл.
+```
+module "storage-bucket" {
+  source = "SweetOps/storage-bucket/google"
+  version = "0.1.1"
+  name = ["${var.bucket-name}", "${var.bucket-name}2"]
+}
+```
+
+#### Хранение стейт файла в удаленном бекенде
+В GCP за хранение файла в удаленном реестре отвечает модуль [gcs](https://www.terraform.io/docs/backends/types/gcs.html)
+```
+terraform {
+  backend "gcs" {
+    bucket = "devops-otust-example-bckt"
+    prefix = "infra/stage"
+  }
+}
+```
+для применения необходимо запустить процесс инициализации. После этого файл tfstate будет Находиться в удалённом хранилище. Модуль gcs поддерживает [блокировку](https://www.terraform.io/docs/state/locking.html) во время приминения конфигуации.
+
+#### После разделения свервиса на разные хосты настроим компоненты:
+На сервере с приложением добавим в [unit-файл](terraform/modules/app/puma.service) адрес сервера с базой данных:
+```
+...
+ExecStart=/usr/local/bin/puma
+Environment=DATABASE_URL=reddit-app-db:27017
+...
+```
+В тераформе "provisioner file" не может перемещать файлы в директории, требующие повышенных привилегий, для перемещения воспользуемся раннее написанным скриптом:
+```
+  provisioner "file" {
+    source      = "../modules/app/puma.service"
+    destination = "/tmp/puma.service"
+  }
+
+  provisioner "remote-exec" {
+    script = "../modules/app/deploy.sh"
+  }
+}
+```
+
+Настроим базу данных на прослушивание нужного адреса.
+
+Передадим в [шаблон](https://www.terraform.io/docs/providers/template/d/file.html) переменную с адресом хоста и отправим полученный файл на сервер:
+```
+data "template_file" "init" {
+  template = "${file("../modules/db/mongod.conf.tpl")}"
+
+  vars = {
+    reddit-db-ip = "${google_compute_address.reddit-db-ip.address}"
+  }
+}
+resource "google_compute_instance" "reddit-db-instances" {
+  ...
+  provisioner "file" {
+  content     = "${data.template_file.init.rendered}"
+  destination = "/tmp/mongod.conf"  
+  }
+  ...
+}
+```
+В этот раз переместим файл с помощью простых комманд:
+```
+...
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv -f /tmp/mongod.conf /etc/mongod.conf",
+      "sudo systemctl restart mongod.service",
+    ]
+  }
+...
+```
+</p>
+</details>

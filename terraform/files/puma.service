@@ -1,12 +1,13 @@
 [Unit]
 Description=Starts puma webserver
-Requires=network.target mongod.service
+Requires=network.target
 
 [Service]
 Type=single
 User=appuser
 WorkingDirectory=/opt/reddit
 ExecStart=/usr/local/bin/puma
+Environment=DATABASE_URL=reddit-app-db:27017
 
 
 [Install]

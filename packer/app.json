@@ -4,8 +4,8 @@
             "type": "googlecompute",
             "image_description": "{{ user `var_image_description` }}",
             "project_id": "{{ user `var_project_id` }}",
-            "image_name": "reddit-full-{{ timestamp }}",
-            "image_family": "reddit-full",
+            "image_name": "reddit-app-{{ timestamp }}",
+            "image_family": "reddit-app-base",
             "source_image_family": "{{ user `var_source_image_family` }}",
             "zone": "europe-west1-b",
             "ssh_username": "appuser",
@@ -18,9 +18,9 @@
     ],
     "provisioners": [
         {
-            "type": "file",
-            "source": "packer/files/puma.service",
-            "destination": "/tmp/puma.service"
+            "type": "shell",
+            "script": "scripts/install_ruby.sh",
+            "execute_command": "sudo {{ .Path }}"
         }
     ]
 }
