@@ -393,3 +393,77 @@ resource "google_compute_instance" "reddit-db-instances" {
 ```
 </p>
 </details>
+
+<details><summary>08. Управление конфигурацией. Основные DevOps инструменты. Знакомство с Ansible.</summary>
+<p>
+
+# Ansible
+
+## Установка:
+Из pip:
+
+    pip install ansible
+Также доступна из пакетов.
+
+## Настройка:
+
+В стандартном варианте работает на Python2, это можно изменить, установив:
+
+    ansible_python_interpreter=/usr/bin/python3
+
+Общие настройки для локального проека можно хранить в файле [ansible.cfg](ansible/ansible.cfg)
+
+[Документация по переменным](https://docs.ansible.com/ansible/devel/reference_appendices/config.html#ansible-configuration-settings)
+
+
+Описание управляемых хостов хранится в inventory файле, в форматах [.ini](ansible/inventory.ini) [.yml](ansible/inventory.yml), [.json](ansible/inventory.json) также есть возможность использовать JSON формат , из [динамического inventory файла](https://docs.ansible.com/ansible/2.8/dev_guide/developing_inventory.html).
+
+Для взаимодействия с управляемыми машинами используются [модули](https://docs.ansible.com/ansible/2.8/modules/modules_by_category.html).
+запуск модуля ping из командной строки:
+
+    ansible all  -i inventory -m ping
+
+[playbook](ansible/clone.yml) пишется на языке yaml:
+
+    ---
+    - name: Clone
+      hosts: appservers
+      tasks:
+      - name: Clone repo
+        git:
+          repo: https://github.com/express42/reddit.git
+          dest: /opt/reddit
+          force: yes
+
+Запуск плейбука:
+
+    ansible-playbook --syntax-check clone.yml
+
+Пример зпуска, без применения тзменений `dry run`:
+
+    ansible-playbook --check --diff clone.yml
+
+## Динамический inventory файл
+
+Написан простой [скрипт](ansible/inventory.py) для сбора информации с локального .tfstate файла, согласно [документации](https://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html#id1)
+вывод должен быть в формате:
+
+    {
+    "_meta": {
+      "hostvars": {}
+    },
+    "all": {
+      "children": [
+        "ungrouped"
+      ]
+    },
+    "ungrouped": {
+      "children": [
+      ]
+    }
+}
+
+[пример вывода скрипта](ansible/dynamic_inventory.json)
+
+</p>
+</details>

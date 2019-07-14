@@ -20,3 +20,7 @@ variable "ssh_user" {
 variable private_key_path {
   description = "Path to privat part"
 }
+
+variable region {
+  description = "Region"
+}

@@ -7,7 +7,7 @@ Type=single
 User=appuser
 WorkingDirectory=/opt/reddit
 ExecStart=/usr/local/bin/puma
-Environment=DATABASE_URL=reddit-app-db:27017
+Environment=DATABASE_URL=reddit-db-1:27017
 
 
 [Install]
