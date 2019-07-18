@@ -37,17 +37,17 @@ resource "google_compute_instance" "reddit-db-instances" {
     private_key = "${file(var.private_key_path)}"
   }
 
-  provisioner "file" {
-    content     = "${data.template_file.init.rendered}"
-    destination = "/tmp/mongod.conf"
-  }
+  # provisioner "file" {
+  #   content     = "${data.template_file.init.rendered}"
+  #   destination = "/tmp/mongod.conf"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mv -f /tmp/mongod.conf /etc/mongod.conf",
-      "sudo systemctl restart mongod.service",
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "sudo mv -f /tmp/mongod.conf /etc/mongod.conf",
+  #     "sudo systemctl restart mongod.service",
+  # #   ]
+  # }
 }
 
 resource "google_compute_firewall" "reddit-db-firewall" {

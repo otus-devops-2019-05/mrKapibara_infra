@@ -5,3 +5,4 @@ gce_googlecompute.pem
 *.tfstate.backup
 *.tfvars
 .terraform/
+*.retry
