@@ -467,3 +467,63 @@ resource "google_compute_instance" "reddit-db-instances" {
 
 </p>
 </details>
+<details><summary>09. Продолжение знакомства с Ansible: templates, handlers, dynamic inventory, vault, tags.</summary>
+<p>
+
+# Ansible: templates, handlers, dynamic inventory, vault, tags
+
+## templates:
+В качестве шаблонизатора в ansible выступает [jinja2](http://jinja.pocoo.org/docs/2.10/).
+пример подстановки простой переменной:
+назначаем переменную:
+
+    vars:
+      mongod_bind_ip: "0.0.0.0"
+Для рендерига шаблона используется модуль [template](https://docs.ansible.com/ansible/latest/modules/template_module.html)
+
+    - name: Add config for DB connection
+      template:
+        src: templates/db_config.j2
+        dest: /opt/db_config
+Внутри шаблона можно установить дэфолтные значения
+
+    port: {{ mongod_port | default('27017') }}
+    bindIp: {{ mongod_bind_ip }}
+Также можно получить информацию из [фактов](https://docs.ansible.com/ansible/latest/modules/setup_module.html). Например получить первый аддресс в группе серверов 'reddit-db-instances':
+
+    {{ groups['reddit-db-instances'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | first }}
+
+[Документация по переменнм в ansible](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html)
+
+## handlers
+Хэндлеры выполняются после всех задач в сценарии, по одному разу. Чтобы изменить это поведение, можно вызвать команду `flush_handlers`, в этом случае выполнятся все хэндлеры незамедлительно.
+
+    - name: Run handlers
+      meta: flush_handlers
+
+## dynamic inventory:
+[Документация](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html)
+
+[Скрипт](ansible/inventory.py) собирающий информацию из локального или удалённого tfstate файла. В таком варианте получаем во время запуска всегда актуальную инфраструктуру, имена ресурсов в тераформе преобразуются в название групп для ansible.
+
+## vault 
+`ansible-vault` Используется для шифрования важных данных. Запускаются такие задачи с ключами `--ask-vault-pass`, `--vault-id`, `--vault-password-file /path/to/file`. Так же можно исполькозать переменную `ANSIBLE_VAULT_PASSWORD_FILE`
+
+[Документация](https://docs.ansible.com/ansible/latest/user_guide/playbooks_vault.html)
+
+## tags
+С помощью тегов можно можно определять какие задачи запускать и на каких хостах.
+
+### Packer
+За установкой пакетов в пакере теперь будет отвечать Ansible.
+Напишем плейбуки для [app](ansible/app.yml ) и [db](ansible/db.yml) шаблонов и приведём к секцию `provisioners` к виду:
+
+    "provisioners": [
+      {
+          "type": "ansible",
+          "playbook_file": "ansible/packer_app.yml",
+          "host_alias": "app-packer"
+      }
+
+</p>
+</details>

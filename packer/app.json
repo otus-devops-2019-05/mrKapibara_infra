@@ -12,15 +12,15 @@
             "machine_type": "{{ user `var_machine_type` }}",
             "disk_size": "10",
             "disk_type": "pd-ssd", 
-            "network": "https://www.googleapis.com/compute/v1/projects/{{ user `var_project_id` }}/global/networks/{{user `var_network` }}",
+            "network": "https://www.googleapis.com/compute/v1/projects/{{ user `var_project_id` }}/global/networks/{{ user `var_network` }}",
             "tags": "puma"
         }
     ],
     "provisioners": [
         {
-            "type": "shell",
-            "script": "scripts/install_ruby.sh",
-            "execute_command": "sudo {{ .Path }}"
+            "type": "ansible",
+            "playbook_file": "ansible/packer_app.yml",
+            "host_alias": "app-packer"
         }
     ]
 }

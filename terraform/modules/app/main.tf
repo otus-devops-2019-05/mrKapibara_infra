@@ -29,14 +29,14 @@ resource "google_compute_instance" "reddit-app-instances" {
     private_key = "${file(var.private_key_path)}"
   }
 
-  provisioner "file" {
-    source      = "../modules/app/puma.service"
-    destination = "/tmp/puma.service"
-  }
+  # provisioner "file" {
+  #   source      = "../modules/app/puma.service"
+  #   destination = "/tmp/puma.service"
+  # }
 
-  provisioner "remote-exec" {
-    script = "../modules/app/deploy.sh"
-  }
+  # provisioner "remote-exec" {
+  #   script = "../modules/app/deploy.sh"
+  # }
 }
 
 resource "google_compute_firewall" "reddit-app-firewall" {

@@ -1,0 +1,24 @@
+---
+- name: Deploy app
+  hosts: reddit-app-instances
+  become: true
+  tasks:
+  - name: Fetch the last version of application code
+    git:
+      repo: 'https://github.com/express42/reddit.git'
+      dest: /opt/reddit
+      version: monolith
+    notify:
+    - restart_puma
+
+  - name: Bundle install
+    bundler:
+      state: present
+      chdir: /opt/reddit
+
+  handlers:
+  - name: restart_puma
+    service:
+      name: puma
+      state: restarted
+      enabled: yes
