@@ -24,5 +24,5 @@ module "app" {
   zone             = "${var.zone}"
   app_disk_image   = "${var.app_disk_image}"
   ssh_user         = "${var.ssh_user}"
-  region = "${var.region}"
+  region           = "${var.region}"
 }

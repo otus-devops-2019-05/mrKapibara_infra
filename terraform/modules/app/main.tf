@@ -45,7 +45,7 @@ resource "google_compute_firewall" "reddit-app-firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["9292"]
+    ports    = ["9292", "80"]
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -68,7 +68,7 @@ resource "google_compute_forwarding_rule" "reddit-app-balancer" {
   region                = "${var.region}"
   load_balancing_scheme = "EXTERNAL"
   ip_protocol           = "TCP"
-  port_range            = "9292"
+  port_range            = "80"
   ip_address = "${google_compute_address.reddit-app-ip.self_link}"
   network_tier          = "STANDARD"
   target                = "${google_compute_target_pool.reddit-app-pool.self_link}"

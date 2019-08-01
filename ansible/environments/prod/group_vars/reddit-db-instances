@@ -1,0 +1,2 @@
+mongod_bind_ip: "0.0.0.0"
+mongod_port: 27017

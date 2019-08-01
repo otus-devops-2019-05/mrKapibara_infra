@@ -4,7 +4,7 @@
   become: true
   tasks:
   - name: Install Ruby
-    apt: 
+    apt:
       name: ["ruby-full", "ruby-bundler", "build-essential"]
       state: present
       update_cache: yes

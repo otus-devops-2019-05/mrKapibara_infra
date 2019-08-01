@@ -10,7 +10,7 @@ OUTPUT = { 'all': { 'children': [ "ungrouped" ] }, "_meta": { "hostvars": {} }, 
 
 # Vars
 # path to tfstate file: "gs://bucket-name/path/default.tfstate" or "/path/to/terraform.tfstate"
-file_path = "terraform.tfstate"
+file_path = "gs://devops-otust-test-bckt/infra/stage/default.tfstate"
 # Path to credentials file
 # https://cloud.google.com/storage/docs/reference/libraries
 account_file = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")

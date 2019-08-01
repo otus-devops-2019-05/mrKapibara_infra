@@ -1,0 +1,9 @@
+db_host: "{{ groups['reddit-db-instances'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | first }}"
+
+nginx_sites:
+  default:
+  - listen 80
+  - server_name "reddit"
+  - location / {
+      proxy_pass http://localhost:9292;
+    }

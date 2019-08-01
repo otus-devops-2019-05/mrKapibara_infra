@@ -527,3 +527,59 @@ resource "google_compute_instance" "reddit-db-instances" {
 
 </p>
 </details>
+<details><summary>10. Принципы организации кода для управления конфигурацией.</summary>
+
+# Принципы организации кода для управления конфигурацией
+
+## Роли:
+Роли в Ansible позволяют разделить таски, хэндлеры, переменные, шаблоныб файлы по отдельным задачам в роли и в дальнейшем переиспользовать их.
+
+Создадим отдельную диреторию для ролей `roles` внутри `ansible`.
+Для создания скелета роли выполняем комманду `ansible-galaxy ini app`
+
+Задачи разбиваются по такому принцыпу:
+
+    ├── defaults      # Переменные по умолчанию
+    │   └── main.yml
+    ├── files         # Статические файлы
+    ├── handlers      # Хэндлеры
+    │   └── main.yml
+    ├── tasks         # Задачи
+    │   └── main.yml  
+    ├── templates     # Шаблоны
+    └── vars          # Переменные
+        └── main.yml
+
+Разделим окружени по разным директориям [stage](ansible/environment/stage), [prod](ansible/environment/prod). И вынесим переменные в отдельную директорию group_vars
+
+## Ansible Galaxy
+[Ansible Galaxy](https://galaxy.ansible.com) - репозиторий комьюнити ролей, которые можно [установить](https://galaxy.ansible.com/docs/using/installing.html)
+
+
+## Ansible Vault
+
+[Ansible Vault](https://docs.ansible.com/ansible/devel/user_guide/vault.html) используется для шифрования данных.
+
+    ansible-vault encrypt <file_name> # Зашифровать файл
+    ansible-vault edit <file_name>    # Отредактировать шифрованный файл
+    ansible-vault decrypt <file_name> # Расшифровать файл
+
+Добавляем путь до ключа шифрования в [ansible.cfg](ansible/ansible.cfg)
+
+    [defaults]
+    ...
+    vault_password_file = path/to/vault.key
+
+## TravisCI
+
+Добавим проверки в Travis. Выполнять проверки будем с помощью модуля [testinfra](https://testinfra.readthedocs.io/en/latest/). Напсан [shell-script](tests/run.sh) для установки зависимостей и запуска [тестов](tests/infra_tests.py): Packer, ansible-lint, terraform.
+
+Для запуска скрипта внутри имеющегося контейнера, добавим в файл [.travis.yml](.travis.yml) строку:
+
+    before_install:
+    ...
+    - docker exec hw-test bash -c './tests/run.sh'
+
+<p>
+</p>
+</details>
