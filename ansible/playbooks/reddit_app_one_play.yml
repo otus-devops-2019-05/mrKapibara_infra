@@ -34,7 +34,7 @@
     - app-tag
     notify:
     - restart_puma
-  
+
   - name: Fetch the last version of application code
     git:
       repo: 'https://github.com/express42/reddit.git'

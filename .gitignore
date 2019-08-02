@@ -6,3 +6,6 @@ gce_googlecompute.pem
 *.tfvars
 .terraform/
 *.retry
+jdauphant.nginx
+vault.key
+__pycache__

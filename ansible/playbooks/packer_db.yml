@@ -16,7 +16,7 @@
       filename: mongodb-org-3.2.list
 
   - name: Install MongoDB
-    apt: 
+    apt:
       name: mongodb-org
       state: present
       update_cache: yes

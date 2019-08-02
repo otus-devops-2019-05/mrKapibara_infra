@@ -1,0 +1,6 @@
+---
+- name: restart_puma
+  service:
+    name: puma
+    state: restarted
+    enabled: yes
