@@ -1,0 +1,20 @@
+---
+- name: Add unit file for puma
+  template:
+    src: puma.service.j2
+    dest: /etc/systemd/system/puma.service
+  notify:
+    - restart_puma
+  tags:
+    - puma_install
+
+- name: Add config for DB connection
+  template:
+    src: db_config.j2
+    dest: /opt/db_config
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+  notify:
+  - restart_puma
+  tags:
+    - puma_install

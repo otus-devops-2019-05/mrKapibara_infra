@@ -1,10 +1,2 @@
 ---
-- name: Install app binaries
-  hosts: app-packer
-  become: true
-  tasks:
-  - name: Install Ruby
-    apt:
-      name: ["ruby-full", "ruby-bundler", "build-essential"]
-      state: present
-      update_cache: yes
+- import_playbook: app.yml

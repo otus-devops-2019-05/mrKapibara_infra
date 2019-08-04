@@ -580,6 +580,53 @@ resource "google_compute_instance" "reddit-db-instances" {
     ...
     - docker exec hw-test bash -c './tests/run.sh'
 
+</details>
+
+<details><summary>11. Локальная разработка Ansible ролей с Vagrant. Тестирование конфигурации.</summary>
 <p>
+
+## Vagrant
+Описание машин, создаваемых вагрантом находится в файле [Vagrantfile](ansible/Vagrantfile). Вагрант поддерживает разных [провайдеров](https://www.vagrantup.com/docs/providers/) для управления машинами. Также имеется большой выбор [провижнеров](https://www.vagrantup.com/docs/provisioning/).
+
+[Документация](https://www.vagrantup.com/docs/index.html)
+
+## Molecule
+Используется для тестирования ansible ролей 
+устанавливается из pip, пример для gcloud: `pip install 'molecule[gce]'`
+Создает скелет тестов при инициализации: `molecule init scenario --scenario-name default -r　<rolename> -d gce`
+
+    molecule
+    └── default
+    ├── create.yml
+    ├── destroy.yml
+    ├── INSTALL.rst
+    ├── molecule.yml
+    ├── playbook.yml
+    ├── prepare.yml
+    └── tests
+        └── test_default.py
+
+настройка производится в файле [molecule.yml](https://github.com/mrKapibara/ansible-role-with-travis/blob/master/molecule/default/molecule.yml)
+
+Тесты лежат в директории [test](https://github.com/mrKapibara/ansible-role-with-travis/tree/master/molecule/default/tests) внутри созданной директории molecule
+
+[Документация](https://molecule.readthedocs.io/en/stable/)
+
+## Travis CI
+
+#### Переменные для запуска тестов Molecule в GCP
+##### Файл с учетными данными нужно создать в gcp
+    travis encrypt GCE_SERVICE_ACCOUNT_EMAIL='<email>' --add
+    travis encrypt GCE_PROJECT_ID='<project-id>' --add
+
+#### Упаковываем файлы
+    tar cvf secrets.tar credentials.json google_compute_engine
+#### Шифруем архив
+    travis encrypt-file secrets.tar --add
+
+[.travis.yml](https://github.com/mrKapibara/ansible-role-with-travis/blob/master/.travis.yml) после добавления
+
+
+
 </p>
 </details>
