@@ -1,0 +1,67 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+MACHINES = {
+  :'reddit-db-instances' => {
+    :hosts => {
+      :'dbserver' => {
+        :box_name => "ubuntu/xenial64",
+        :ip_addr => '192.168.10.200',
+        :host_mem => '512',
+      },
+    },
+    :vars => {
+      "mongod_bind_ip" => "0.0.0.0",
+      "mongod_port" => '27017',
+    },
+    :ansible_extra_vars => {
+      "deploy_user" => "ubuntu",
+    },
+  },
+  :'reddit-app-instances' => {
+    :hosts => {
+      :'appserver' => {
+        :box_name => "ubuntu/xenial64",
+        :ip_addr => '192.168.10.100',
+        :host_mem => '512',
+      },
+    },
+    :vars => { 
+      "db_host" => '192.168.10.200',
+    },
+    :ansible_extra_vars => {
+      "deploy_user" => "ubuntu",
+      "nginx_sites" => {
+        "default" => [
+          "listen 80",
+          "server_name 'reddit'",
+          "location / { proxy_pass http://localhost:9292; }"
+          ]
+      }
+    },
+  },
+}
+
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |group_name, host_name|
+    host_name[:hosts].each do |host_config, host_vars|
+      config.vm.define host_config do |box|
+
+        box.vm.box = host_vars[:box_name]
+        box.vm.host_name = host_vars[:hosts]
+        box.vm.network "private_network", ip: host_vars[:ip_addr]
+
+        config.vm.provision 'ansible' do |ansible|
+          ansible.playbook = 'playbooks/site.yml'
+          ansible.groups = {
+            group_name => host_name[:hosts].keys,
+            group_name.to_s + ":vars" => host_name[:vars],
+          }
+          ansible.extra_vars = host_name[:ansible_extra_vars]
+        end
+      end
+    end
+  end
+end

@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 EnvironmentFile=/opt/db_config
-User=appuser
+User={{ deploy_user }}
 WorkingDirectory=/opt/reddit
 ExecStart=/bin/bash -lc 'puma'
 Restart=always

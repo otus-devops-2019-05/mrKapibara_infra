@@ -9,3 +9,11 @@ gce_googlecompute.pem
 jdauphant.nginx
 vault.key
 __pycache__
+venv
+# Vagrant & molecule
+.vagrant/
+*.log
+*.pyc
+.molecule
+.cache
+.pytest_cache
